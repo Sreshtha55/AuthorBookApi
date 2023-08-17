@@ -1,0 +1,7 @@
+*venv/
+venv/*
+venv
+myapp/
+.idea
+__pycache__
+envfile.txt
