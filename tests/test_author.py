@@ -62,7 +62,7 @@ def test_create_author():
     login_user1 = client.post("/author",headers=headers, json=body1)
     token_data1=login_user1.json()
 
-    assert login_user1.status_code == 201 , "response code returned is not 200"
+    assert login_user1.status_code == 201 , "response code returned is not 201"
     assert set(return_json_keys)==set(token_data1.keys()) , "access_token key is not found in login api response"
 
 
