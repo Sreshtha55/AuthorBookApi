@@ -17,9 +17,10 @@ def verify_token(token:str,credentials_exception):
     try:
         payload = jwt.decode(token, environ['SECRET_KEY'], algorithms=[ALGORITHM])
         email: str = payload.get("sub")
+        id: str = payload.get("id")
         if email is None:
             raise credentials_exception
-        token_data = bookmodel.TokenData(email=email)
+        token_data = bookmodel.TokenData(email=email,id=id)
         return token_data
     except JWTError:
         raise credentials_exception

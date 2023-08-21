@@ -1,27 +1,23 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException,Request
 from fastapi.security import OAuth2PasswordRequestForm
 from security import jwttoken
-from config.db import conn
+from config.db import validate_db
 from security.hashing import Hash
 
 router = APIRouter(tags=['Authentication'])
 
 @router.post('/login')
-def login(request:OAuth2PasswordRequestForm = Depends()):
+def login(req: Request,request:OAuth2PasswordRequestForm = Depends(),conn=Depends(validate_db)):
+    if req.headers.get("db-status") == "Down":
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB Down")
     mybook=conn["BookDB"]
-    authors = mybook.authors.find({"email": request.username})
-    for author in authors:
-        if not author:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f"Invalid Credentials")
-        if not Hash.verify(author["password"], request.password):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f"Incorrect password")
+    authors = mybook.authors.find_one({"email": request.username})
+    if authors == None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Incorrect email")
+    if not Hash.verify(authors["password"], request.password):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Incorrect password")
 
-        access_token = jwttoken.create_access_token(data={"sub": author["email"]})
-        return {"access_token": access_token, "token_type": "bearer"}
-#
-# @router.post("/logout")
-# def user_logout(Authorization: str = Header(None)):
-#     oauth2_scheme.revoke_token(Authorization)
-#     return {"message": "Token revoked"}
+    access_token = jwttoken.create_access_token(data={"sub": authors["email"],"id": str(authors["_id"])})
+    return {"access_token": access_token, "token_type": "bearer"}

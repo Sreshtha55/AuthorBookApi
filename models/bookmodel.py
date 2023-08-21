@@ -22,14 +22,15 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
+    id: str
     email: EmailStr | None
-
 
 class Book(BaseModel):
     title: str
     summary: str | None = Field(default=None,max_length=50,description="Summary of this book")
     genres: list[str] | None = None
     pages: int | None = None
+    author_ids: list[str] | None = None
 
 class UpdateBook(BaseModel):
     title: str | None = None
@@ -51,7 +52,8 @@ class UpdateAuthor(BaseModel):
     age: int | None = Field(default=15, gt=14, lt=90, description="Author shouldn`t be younger than 15 and older than 90")
 
 class AuthorBooks(ShowAuthor):
-    books: list[Book] | None = []
+    books: list[UpdateBook] | None = []
+    
 class Author(ShowAuthor):
     password: str = Field(min_length=8 , max_length=15, description= "Password should be greater than 8 and less than 15 characters long")
 

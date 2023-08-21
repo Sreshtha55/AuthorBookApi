@@ -1,12 +1,19 @@
 from models import bookmodel
-from config.db import conn
+# from config.db import validate_db
 from fastapi.exceptions import HTTPException
-from fastapi import status
+from fastapi import status,Depends,Request
 from fastapi.responses import JSONResponse
 from security.hashing import Hash
-from schemas import *
+from fastapi.encoders import jsonable_encoder
+import pydantic
+from bson import ObjectId
+from bson import json_util
+import json
 
-def create_author(request: bookmodel.Author):
+# pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
+
+
+def create_author(req,request: bookmodel.Author,conn):
     mybook = conn["BookDB"]
     record = request.model_dump(exclude_unset=True)
     new_body = {
@@ -18,9 +25,9 @@ def create_author(request: bookmodel.Author):
     record.update({"password": Hash.bcrypt(request.password)})
     new_author = mybook.authors.insert_one(record)
     inserted_author = mybook.authors.find_one({"email": request.email}, {"password":0})
-    return DictSerializer(inserted_author)
+    return json.loads(json_util.dumps(inserted_author))
 
-def change_password(body: bookmodel.ChangePassword,email:str):
+def change_password(body: bookmodel.ChangePassword,email:str,conn):
     mybook = conn["BookDB"]
     record = body.model_dump()
     # print(Hash.bcrypt(record["current_password"]))
@@ -33,21 +40,22 @@ def change_password(body: bookmodel.ChangePassword,email:str):
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"Wrong current password provided! ")
-    return JSONResponse(content="Your password has been updated successfully")
+    return JSONResponse({"detail": "Your password has been updated successfully"})
+    # return JSONResponse(content="Your password has been updated successfully")
 
-def show(email:str):
+def show(email:str,conn):
     mybook = conn["BookDB"]
     authors = mybook.authors.find_one({"email": email})
-    return DictSerializer(authors)
+    return json.loads(json_util.dumps(authors))
 
-def profile(email:str):
+def profile(email:str,conn):
     mybook = conn["BookDB"]
     record= mybook.authors.find_one({"email":email},{"password":0})
     if record == None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"No Author found with email {email} given.")
-    return record
+    return json.loads(json_util.dumps(record))
 
-def patch(request: bookmodel.UpdateAuthor, email:str):
+def patch(request: bookmodel.UpdateAuthor, email:str,conn):
     mybook = conn["BookDB"]
     # if not mybook.authors.find_one({"$and": [{"_id": ObjectId(id)}, {"email": current_user.email}]}):
     #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -60,4 +68,4 @@ def patch(request: bookmodel.UpdateAuthor, email:str):
         if value is not None
     }
     authors = mybook.authors.find_one_and_update({"email": email}, {"$set": new_body})
-    return JSONResponse(content="Successfully Updated!")
+    return json.loads(json_util.dumps(authors))
