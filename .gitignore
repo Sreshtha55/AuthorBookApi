@@ -5,3 +5,4 @@ myapp/
 .idea
 __pycache__
 envfile.txt
+.vscode/
