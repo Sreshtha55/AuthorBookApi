@@ -62,10 +62,11 @@ def patch(request: bookmodel.UpdateAuthor, email:str,conn):
     #                         detail=f"Invalid id {id} given.")
     body = request.model_dump(exclude_unset=True)
     if body=={}:
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Nothing updated! Please update atleast one field")
-    new_body = {
-        key: value for key, value in body.items()
-        if value is not None
-    }
-    authors = mybook.authors.find_one_and_update({"email": email}, {"$set": new_body})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Nothing updated! Please update atleast one field")
+    if "email" in body:
+        find_email = mybook.authors.find_one({"email":email})
+        if find_email:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Email is already taken. Please retry with another email!")                               
+    authors_update = mybook.authors.find_one_and_update({"email": email}, {"$set": body})
+    authors = mybook.authors.find_one({"_id":authors_update["_id"]})
     return json.loads(json_util.dumps(authors))
