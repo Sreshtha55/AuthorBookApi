@@ -6,10 +6,10 @@ import pydantic
 import struct
 
 class ChangePassword(BaseModel):
-    current_password: str
+    current_password: str = Field(min_length=8 , max_length=15, description= "Password should be greater than 8 and less than 15 characters long")
     new_password: str = Field(min_length=8 , max_length=15, description= "Password should be greater than 8 and less than 15 characters long")
 
-    @validator("new_password")
+    @validator("new_password","current_password")
     def validate_password_complexity(cls, password):
         # Implement your own password complexity checks here
         if not any(c.isalpha() for c in password) or not any(c.isdigit() for c in password):
