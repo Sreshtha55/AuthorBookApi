@@ -6,3 +6,4 @@ myapp/
 __pycache__
 envfile.txt
 .vscode/
+logs/

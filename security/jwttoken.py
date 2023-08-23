@@ -3,6 +3,19 @@ from jose import JWTError, jwt
 from models import bookmodel
 from os import environ
 
+import logging
+from datetime import  datetime
+
+now=datetime.now()
+file_format = now.strftime("%Y-%m-%d-%H")
+
+logger=logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler=logging.FileHandler(f"logs/bookapi_{file_format}.log")
+formatter=logging.Formatter('%(asctime)s-%(name)s-%(levelname)s-%(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -19,8 +32,10 @@ def verify_token(token:str,credentials_exception):
         email: str = payload.get("sub")
         id: str = payload.get("id")
         if email is None:
+            logger.error("Login error as the email is not authorized/found")
             raise credentials_exception
         token_data = bookmodel.TokenData(email=email,id=id)
         return token_data
     except JWTError:
+        logger.error("Login Error as Invalid token provided")
         raise credentials_exception
