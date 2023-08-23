@@ -14,7 +14,7 @@ def create(request: bookmodel.Book,current_user_dict,conn):
     mybook=conn["BookDB"]
     record = request.model_dump(exclude_unset=True)
     if "author_ids" not in record:
-        record.update({"author_ids":current_user_dict["id"]})
+        record.update({"author_ids":[current_user_dict["id"]]})
     author_invalid_ids=[]
     for i in record["author_ids"]:
         # print(i)
