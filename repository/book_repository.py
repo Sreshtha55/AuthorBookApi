@@ -60,6 +60,7 @@ def create(request: bookmodel.Book,current_user_dict,conn):
         return json.loads(json_util.dumps(new_book))
     else:
         logger.error(f"Title is not unique, hence rejecting this request")
+        logger.info(f"Create Book Request Finished")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Please change the title because another book with this title is already taken!")
 
 def show_all(conn,id:str,search:str| None=None, limit:int | None=None):
@@ -108,6 +109,7 @@ def show_by_title(title: str,conn):
     get_book = mybook.books.find_one({"title": title})
     if get_book== None:
         logger.error(f"No Books found under this title '{title}'")
+        logger.info(f"Get All Book Request with title {title} Finished!")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"No Books found under this title '{title}'")
     logger.info(f"Books found in DB is {get_book}")
@@ -120,6 +122,7 @@ def patch(id:str, request: bookmodel.UpdateBook, current_user_id:str,conn):
     logger.info(f"Checking in books collection with this book id {id}")
     if mybook.books.find({"$and":[{"_id": ObjectId(id)},{"author_ids":current_user_id}]}).count()==0:
         logger.error(f"No Books found under this Author with this book id '{id}'")
+        logger.info(f"Update Book Request for book id {id} finished")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"No Books found under this Author with this book id '{id}'")
     logger.info(f"Books exists with this id {id}")
@@ -127,6 +130,7 @@ def patch(id:str, request: bookmodel.UpdateBook, current_user_id:str,conn):
     logger.info(f"Request body received is {body}")
     if body=={}:
         logger.error(f"Request body found empty")
+        logger.info(f"Update Book Request for book id {id} finished")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Nothing updated! Please update atleast one field")
     if "title" in body:
         check_book_title = mybook.books.find_one({"title":body["title"]})

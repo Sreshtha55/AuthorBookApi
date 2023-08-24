@@ -9,6 +9,7 @@ client = TestClient(app)
 
 @pytest.mark.create_author
 def test_create_author():
+    # Below body satisfies all the required
     body1 = {
         "first_name": "Sreshtha",
         "last_name": "Bhatt",
@@ -16,6 +17,8 @@ def test_create_author():
         "age": 20,
         "password": "testing123"
     }
+
+    # Below Body Password field must contain both letters and digits
     body2 = {
         "first_name": "Sreshtha",
         "last_name": "Bhatt",
@@ -24,6 +27,7 @@ def test_create_author():
         "password": "stringst"
     }
 
+    # Below body password field has does not have 8 characters
     body3 = {
         "first_name": "Sreshtha",
         "last_name": "Bhatt",
@@ -32,6 +36,7 @@ def test_create_author():
         "password": "tes"
     }
 
+    # Below field does not have the required email field
     body4 = {
         "first_name": "Sreshtha",
         "last_name": "Bhatt",
@@ -39,6 +44,7 @@ def test_create_author():
         "password": "testing123"
     }
 
+    # Below body does not have the required password field
     body5 = {
         "first_name": "Sreshtha",
         "last_name": "Bhatt",
@@ -46,6 +52,8 @@ def test_create_author():
         "email": "test1@gmail.com"
     }
 
+
+    # Below body does not have the email field in email format
     body6 = {
         "first_name": "Sreshtha",
         "last_name": "Bhatt",
@@ -54,6 +62,7 @@ def test_create_author():
         "password": "testing123"
     }
 
+    # In the below body email is already registered
     body7 = {
         "email": "test@gmail.com",
         "password": "testing123"
@@ -187,6 +196,8 @@ def test_create_author():
 
 @pytest.mark.change_password
 def test_change_password(init_author_login):
+
+    # In the below body the current password does not satisfies the 8 characters long validation
     body1 = {
         "current_password": "test",
         "new_password": "stringst123"
@@ -214,6 +225,9 @@ def test_change_password(init_author_login):
             }
         ]
     }
+
+    ''' In the below body the current password satisfies the 8 characters 
+    long validation but fails the requirement to conatin both letter and digits'''
 
     body2 = {
         "current_password": "testasmcnm",
@@ -243,6 +257,7 @@ def test_change_password(init_author_login):
         ]
     }
 
+    # In the below body the new password does not satisfies the 8 characters long validation
     body3 = {
         "current_password": "testingsca123",
         "new_password": "test"
@@ -270,6 +285,9 @@ def test_change_password(init_author_login):
             }
         ]
     }
+
+    ''' In the below body the new password satisfies the 8 characters 
+    long validation but fails the requirement to conatin both letter and digits'''
 
     body4 = {
         "current_password": "testing1234",
@@ -299,6 +317,7 @@ def test_change_password(init_author_login):
         ]
     }
 
+    # In the below body the current password does not mactches with the current password in DB
     body5 = {
         "current_password": "testingsca123",
         "new_password": "stringst123"
@@ -313,6 +332,7 @@ def test_change_password(init_author_login):
         "detail": "Wrong current password provided! "
     }
 
+    # The below body satisfies all the validation
     body6 = {
         "current_password": "testing123",
         "new_password": "testing1234"
@@ -343,7 +363,7 @@ def test_get_author_profile(init_author_login):
         "age": 28
     }
 
-    header2 = {'Content-Type': 'application/json; charset=UTF-8'}
+    # In the below senario the user has not send its authorization header
     author_profile2 = client.get("/author/me")
     data2 = author_profile2.json()
     assert author_profile2.status_code == 401, "response code returned is not 401"
@@ -354,6 +374,8 @@ def test_get_author_profile(init_author_login):
 
 @pytest.mark.search_author_using_email
 def test_search_author_using_email(init_author_login):
+
+    # In the below senario the user has not send its authorization header
     header = {'Content-Type': 'application/json; charset=UTF-8'}
     search_profile = client.get("/author/profile/ok@gmail.com")
     data = search_profile.json()
@@ -362,6 +384,7 @@ def test_search_author_using_email(init_author_login):
         "detail": "Not authenticated"
     }
 
+    # In the below senario the user satisfies all the requirement
     header2 = {'Content-Type': 'application/json; charset=UTF-8',
                'Authorization': f'Bearer {init_author_login}'}
     search_profile2 = client.get(
@@ -385,6 +408,7 @@ def test_search_author_using_email(init_author_login):
         ]
     }
 
+    # In the below senario the user has sent the email which is not registered.
     header3 = {'Content-Type': 'application/json; charset=UTF-8',
                'Authorization': f'Bearer {init_author_login}'}
     search_profile3 = client.get(
@@ -398,17 +422,21 @@ def test_search_author_using_email(init_author_login):
 
 @pytest.mark.update_author
 def test_update_author(init_author_login):
+
+    # In the below scenario user is trying to send update request with empty body 
     body = {}
     header = {'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': f'Bearer {init_author_login}'}
     update_profile = client.patch("/author/me", headers=header, json=body)
     data = update_profile.json()
-    print(data)
     assert update_profile.status_code == 400, "response code returned is not 400"
     assert data == {
         "detail": "Nothing updated! Please update atleast one field"
     }
 
+    ''' In the below scenario user is trying to send update request in the body
+      with only email field but email is already registered and taken by another user '''
+    
     body2 = {
         "email": "ok@gmail.com"
     }
@@ -421,6 +449,7 @@ def test_update_author(init_author_login):
         "detail": "Email is already taken. Please retry with another email!"
     }
 
+    # In the below scenario user satisfies all the requirement and he wants to update its first_name field only
     body3 = {
         "first_name": "Harsh"
     }

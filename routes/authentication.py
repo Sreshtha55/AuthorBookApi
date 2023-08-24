@@ -20,7 +20,7 @@ router = APIRouter(tags=['Authentication'])
 
 @router.post('/login')
 def login(req: Request,request:OAuth2PasswordRequestForm = Depends(),conn=Depends(validate_db)):
-    logger.info(f"Looging Request received!")
+    logger.info(f"Login Request received!")
     if req.headers.get("db-status") == "Down":
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="DB Down")
     mybook=conn["BookDB"]
@@ -36,6 +36,7 @@ def login(req: Request,request:OAuth2PasswordRequestForm = Depends(),conn=Depend
         logger.error(f"Password didn't matched!")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"Incorrect password")
+    logger.info(f"Username and password matches in DB")
     logger.info(f"Creating access token")
     access_token = jwttoken.create_access_token(data={"sub": authors["email"],"id": str(authors["_id"])})
     logger.info(f"Access token Created and sent in response")

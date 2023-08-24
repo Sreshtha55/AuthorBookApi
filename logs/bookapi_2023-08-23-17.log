@@ -1,0 +1,21 @@
+2023-08-23 17:56:31,569-middlewares.middlewares-INFO-...............Checking DB Status...........
+2023-08-23 17:56:32,559-middlewares.middlewares-INFO-...............DB Checking Done...........
+2023-08-23 17:56:32,560-middlewares.middlewares-INFO-DB is Up. Hence adding DB status Up in every api call request headers.
+2023-08-23 17:56:32,578-routes.authentication-INFO-Login Request received!
+2023-08-23 17:56:32,578-routes.authentication-INFO-Request email is harsh@gmail.com
+2023-08-23 17:56:34,150-routes.authentication-INFO-Checking this email harsh@gmail.com in DB
+2023-08-23 17:56:34,150-routes.authentication-INFO-Matching the password with the password stored in DB
+2023-08-23 17:56:34,371-routes.authentication-INFO-Creating access token
+2023-08-23 17:56:34,372-routes.authentication-INFO-Access token Created and sent in response
+2023-08-23 17:56:34,373-middlewares.middlewares-INFO-Response took 3.013471841812134secs to respond. Added in the response header
+2023-08-23 17:56:34,380-middlewares.middlewares-INFO-...............Checking DB Status...........
+2023-08-23 17:56:34,897-middlewares.middlewares-INFO-...............DB Checking Done...........
+2023-08-23 17:56:34,897-middlewares.middlewares-INFO-DB is Up. Hence adding DB status Up in every api call request headers.
+2023-08-23 17:56:34,915-repository.author_repository-INFO-Get request received to show loggedin author details
+2023-08-23 17:56:34,915-repository.author_repository-INFO-Checking the loggedin email harsh@gmail.com in Database
+2023-08-23 17:56:36,416-repository.author_repository-INFO-Author details found is {'_id': ObjectId('64df65bcce1f84b67732dd1c'), 'first_name': 'Harsh', 'last_name': 'Prasad', 'email': 'harsh@gmail.com', 'age': 28, 'password': '$2b$12$USRA.Rlxb2QSCKWhFaLcbOuJ3Icc6yGbN3UywuqcSeLEej88XpzR6', 'books': []}
+2023-08-23 17:56:36,421-middlewares.middlewares-INFO-Response took 2.045017719268799secs to respond. Added in the response header
+2023-08-23 17:56:36,433-middlewares.middlewares-INFO-...............Checking DB Status...........
+2023-08-23 17:56:36,955-middlewares.middlewares-INFO-...............DB Checking Done...........
+2023-08-23 17:56:36,955-middlewares.middlewares-INFO-DB is Up. Hence adding DB status Up in every api call request headers.
+2023-08-23 17:56:36,958-middlewares.middlewares-INFO-Response took 0.5307188034057617secs to respond. Added in the response header

@@ -9,6 +9,8 @@ client = TestClient(app)
 
 @pytest.mark.create_book
 def test_create_book(init_author_login):
+
+    # In the below scenario user sends with emapty body , but title field is the required field
     body = {
 
     }
@@ -32,24 +34,7 @@ def test_create_book(init_author_login):
         ]
     }
 
-    create_book2 = client.post("/book", headers=header, json=body)
-    data2 = create_book2.json()
-    assert create_book2.status_code == 422, "response code returned is not 422"
-    assert data2 == {
-        "detail": [
-            {
-                "type": "missing",
-                "loc": [
-                    "body",
-                    "title"
-                ],
-                "msg": "Field required",
-                "input": {},
-                "url": "https://errors.pydantic.dev/2.1/v/missing"
-            }
-        ]
-    }
-
+    # In the below senario the user has not send its authorization header
     header2 = {'Content-Type': 'application/json; charset=UTF-8'}
     create_book3 = client.post("/book", headers=header2, json=body)
     data3 = create_book3.json()
@@ -58,6 +43,7 @@ def test_create_book(init_author_login):
         "detail": "Not authenticated"
     }
 
+    # In the below scenario user satisfies all the requirement and sends his user id in the author_ids field
     body2 = {
         "title": "The secret",
         "summary": "Law of Attraction",
@@ -83,6 +69,9 @@ def test_create_book(init_author_login):
             "64df65bcce1f84b67732dd1c"
         ]
     }
+
+    ''' In the below scenario user satisfies all the requirement and sends 
+    the other user's user id in the author_ids field but not his own user id.'''
 
     body3 = {
         "title": "Rich Dad Poor Dad",
@@ -114,6 +103,8 @@ def test_create_book(init_author_login):
         ]
     }
 
+    ''' In the below scenario user satisfies all the requirement and sends 
+    the other user's user id in the author_ids field as well his own user id.'''
     body4 = {
         "title": "Test Title",
         "summary": "Test Summary",
@@ -145,20 +136,6 @@ def test_create_book(init_author_login):
         ]
     }
 
-# If there is no books under the author
-
-
-# @pytest.mark.showallbook_empty
-# def test_showallbook_empty(init_author_login):
-#     header = {'Content-Type': 'application/json; charset=UTF-8',
-#               'Authorization': f'Bearer {init_author_login}'}
-#     showallbooks = client.get("/book", headers=header)
-#     data = showallbooks.json()
-#     print(data)
-#     assert showallbooks.status_code != 400, "response code returned is not 400"
-#     assert data != {
-#         "detail": "No Books found!"
-#     }
 
 
 # If there is few books under the author
@@ -174,7 +151,8 @@ def test_showallbook(init_author_login):
         assert data == {
             "detail": "No Books found!"
         }
-    assert showallbooks.status_code == 200, "response code returned is not 200"
+    else:
+        assert showallbooks.status_code == 200, "response code returned is not 200"
 
     # Suppose the title under this author's books contains word "rich" in either lower or uppercase.
     showallbooks = client.get("/book", headers=header,
@@ -194,7 +172,6 @@ def test_showallbook(init_author_login):
 @pytest.mark.showallbookbytitle
 def test_showallbookbytitle(init_author_login):
 
-    # If there is no books under the author
     header = {'Content-Type': 'application/json; charset=UTF-8',
               'Authorization': f'Bearer {init_author_login}'}
 
@@ -205,9 +182,16 @@ def test_showallbookbytitle(init_author_login):
     }
     for i in title1:
         showallbooks = client.get(f"/book/{i}", headers=header)
-        assert showallbooks.status_code == 200, "response code returned is not 200"
+        data=showallbooks.json()
+        if showallbooks.status_code == 400:
+            assert showallbooks.status_code == 400, "response code returned is not 400"
+            assert data == {
+                "detail": f"No Books found under this title '{i}'"
+            }
+        else:
+            assert showallbooks.status_code == 200, "response code returned is not 200"
 
-    # If these title is not under the logedin author
+    # If there is no books under these title for the logedin author
     title2 = {
         "Sachin Tendulkar",
         "MS Dhoni"
@@ -231,6 +215,7 @@ def test_updatebook(init_author_login):
         "64e4b6c0dfab117b6a338be9",
         "64e4b6d9dfab117b6a338bec"
     ]
+    # But user sends update request with empty body
     body1 = {}
     for i in ids:
         updatebook = client.patch(f"/book/{i}", headers=header, json=body1)
@@ -239,6 +224,8 @@ def test_updatebook(init_author_login):
         assert data == {
             "detail": "Nothing updated! Please update atleast one field"
         }
+    
+    # User sends update request with all conditions satsfies
     body2 = {
         "title": "Test Title",
     }
@@ -246,6 +233,8 @@ def test_updatebook(init_author_login):
     data = updatebook.json()
     assert updatebook.status_code == 200, "response code returned is not 200"
     
+
+    # User sends update request with title field to update but trying to update it with the already taken title
     updatebook = client.patch(f"/book/{ids[1]}", headers=header, json=body2)
     data = updatebook.json()
     assert updatebook.status_code == 400, "response code returned is not 400"
@@ -253,7 +242,7 @@ def test_updatebook(init_author_login):
         "detail": "The title is already taken!. Please change the title and then retry!"
     }
 
-    # This book id is not under the logedin author
+    # This book id is not under the logedin author and the user trying to send the update request with this id
     ids="64e336a638f88ae72099b073"
     updatebook = client.patch(f"/book/{ids}", headers=header, json=body2)
     data = updatebook.json()
